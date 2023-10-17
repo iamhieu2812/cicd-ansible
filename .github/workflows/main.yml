@@ -22,6 +22,9 @@ jobs:
         run: |
           pip install ansible
 
+      - name: Add host to known hosts
+        run: ssh-keyscan -H 52.63.202.45 >> ~/.ssh/known_hosts
+
       - name: Run Ansible playbook
         run: |
           ansible-playbook -i playbooks/hosts.ini --private-key playbooks/hi.pem -u ubuntu playbooks/install_docker.yml
