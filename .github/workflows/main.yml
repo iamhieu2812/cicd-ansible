@@ -1,0 +1,29 @@
+name: Run Ansible Playbook
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install Ansible
+      run: |
+        pip install ansible
+
+    - name: Run Ansible playbook
+      env:
+        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      run: |
+        ansible-playbook -i hosts.ini --private-key <(echo "$PRIVATE_KEY") -u ubuntu install_docker.yml
