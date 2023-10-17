@@ -28,6 +28,9 @@ jobs:
       - name: Add host to known hosts
         run: ssh-keyscan -H 52.63.202.45 >> ~/.ssh/known_hosts
 
+      - name: Set proper permissions for private key
+        run: chmod 600 playbooks/hi.pem
+
       - name: Run Ansible playbook
         run: |
           ansible-playbook -i playbooks/hosts.ini --private-key playbooks/hi.pem -u ubuntu playbooks/install_docker.yml
