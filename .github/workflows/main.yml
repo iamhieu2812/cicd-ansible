@@ -6,25 +6,33 @@ on:
       - main
 
 jobs:
-  deploy:
+  setup:
+    name: Setup
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/github
+          chmod 600 ~/.ssh/github
+          cat >>~/.ssh/config <<END
+          Host target
+          HostName $SSH_HOST
+          User $SSH_USER
+          IdentityFile ~/.ssh/github
+          LogLevel ERROR
+          StrictHostKeyChecking no
+          END
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-
-    - name: Install Ansible
-      run: |
-        pip install ansible
-
-    - name: Run Ansible playbook
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      run: |
-        
-        ansible-playbook -i playbooks/hosts.ini --private-key <(echo "$SSH_PRIVATE_KEY") -u ubuntu playbooks/install_docker.yml
+  deploy:
+    name: Deploy
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run deploy
+        run: |
+          ssh target "echo 'Hello, World!' > hello.txt"

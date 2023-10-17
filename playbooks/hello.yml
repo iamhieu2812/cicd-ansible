@@ -1,8 +1,0 @@
----
-- name: Install Docker on Ubuntu
-  hosts: myhost
-  become: yes
-  tasks:
-    - name: Echo
-      apt:
-        update_cache: yes
