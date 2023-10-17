@@ -6,33 +6,22 @@ on:
       - main
 
 jobs:
-  setup:
-    name: Setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-        run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/github
-          chmod 600 ~/.ssh/github
-          cat >>~/.ssh/config <<END
-          Host target
-          HostName $SSH_HOST
-          User $SSH_USER
-          IdentityFile ~/.ssh/github
-          LogLevel ERROR
-          StrictHostKeyChecking no
-          END
-
   deploy:
-    name: Deploy
-    needs: setup
     runs-on: ubuntu-latest
+
     steps:
-      - name: Run deploy
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install Ansible
         run: |
-          ssh target "echo 'Hello, World!' > hello.txt"
+          pip install ansible
+
+      - name: Run Ansible playbook
+        run: |
+          ansible-playbook -i playbooks/hosts.ini --private-key playbooks/hi.pem -u ubuntu playbooks/install_docker.yml
