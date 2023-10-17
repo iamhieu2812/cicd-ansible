@@ -26,4 +26,5 @@ jobs:
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
+        
         ansible-playbook -i playbooks/hosts.ini --private-key <(echo "$SSH_PRIVATE_KEY") -u ubuntu playbooks/install_docker.yml
