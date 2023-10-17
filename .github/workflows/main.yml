@@ -22,12 +22,8 @@ jobs:
       run: |
         pip install ansible
 
-    - name: Change permission
-      run: |
-        chmod 600 playbooks/hi.pem
-
     - name: Run Ansible playbook
       env:
-        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
-        ansible-playbook -i playbooks/hosts.ini --private-key playbooks/hi.pem -u ubuntu playbooks/install_docker.yml
+        ansible-playbook -i playbooks/hosts.ini --private-key <(echo "$SSH_PRIVATE_KEY") -u ubuntu playbooks/install_docker.yml
